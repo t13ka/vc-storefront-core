@@ -17,6 +17,7 @@ using VirtoCommerce.Storefront.Model.Pricing.Services;
 using VirtoCommerce.Storefront.Model.Services;
 using VirtoCommerce.Storefront.Model.Subscriptions.Services;
 using catalogDto = VirtoCommerce.Storefront.AutoRestClients.CatalogModuleApi.Models;
+using VirtoCommerce.Storefront.Model.CustomerReviews;
 
 namespace VirtoCommerce.Storefront.Domain
 {
@@ -30,6 +31,7 @@ namespace VirtoCommerce.Storefront.Domain
         private readonly IMemberService _customerService;
         private readonly ISubscriptionService _subscriptionService;
         private readonly IInventoryService _inventoryService;
+        private readonly ICustomerReviewService _customerReviewService;
         private readonly IStorefrontMemoryCache _memoryCache;
         private readonly IApiChangesWatcher _apiChangesWatcher;
 
@@ -37,7 +39,8 @@ namespace VirtoCommerce.Storefront.Domain
             ICatalogModuleProducts productsApi,
             ICatalogModuleSearch searchApi, IPricingService pricingService, IMemberService customerService,
             ISubscriptionService subscriptionService,
-            IInventoryService inventoryService, IStorefrontMemoryCache memoryCache, IApiChangesWatcher changesWatcher)
+            IInventoryService inventoryService, IStorefrontMemoryCache memoryCache, IApiChangesWatcher changesWatcher,
+            ICustomerReviewService customerReviewService)
         {
             _workContextAccessor = workContextAccessor;
             _categoriesApi = categoriesApi;
@@ -50,6 +53,7 @@ namespace VirtoCommerce.Storefront.Domain
             _subscriptionService = subscriptionService;
             _memoryCache = memoryCache;
             _apiChangesWatcher = changesWatcher;
+            _customerReviewService = customerReviewService;
         }
 
         #region ICatalogSearchService Members
@@ -76,6 +80,8 @@ namespace VirtoCommerce.Storefront.Domain
                 var productsWithVariations = result.Concat(result.SelectMany(p => p.Variations)).ToList();
 
                 await LoadProductDependencies(productsWithVariations, responseGroup, workContext);
+
+                await LoadProductCustomerReviewsAsync(result);
             }
 
             return result;
@@ -178,6 +184,35 @@ namespace VirtoCommerce.Storefront.Domain
             };
         }
         #endregion
+
+        protected virtual Task LoadProductCustomerReviewsAsync(Product[] products)
+        {
+            if (products == null)
+            {
+                throw new ArgumentNullException(nameof(products));
+            }
+
+            foreach (var product in products)
+            {
+                // Lazy loading for customer reviews
+                product.CustomerReviews = new MutablePagedList<Model.CustomerReviews.CustomerReview>(
+                    (pageNumber, pageSize, sortInfos) =>
+                    {
+                        var criteria = new CustomerReviewSearchCriteria
+                        {
+                            ProductIds = new[] { product.Id },
+                            PageNumber = pageNumber,
+                            PageSize = pageSize,
+                            Sort = SortInfo.ToString(sortInfos)
+                        };
+                        return _customerReviewService.SearchReviews(criteria);
+                    },
+                    1,
+                    CustomerReviewSearchCriteria.DefaultPageSize);
+            }
+
+            return Task.CompletedTask;
+        }
 
         protected virtual async Task LoadProductDependencies(List<Product> products, ItemResponseGroup responseGroup, WorkContext workContext)
         {

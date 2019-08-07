@@ -37,10 +37,11 @@ using VirtoCommerce.Storefront.Model.Common.Bus;
 using VirtoCommerce.Storefront.Model.Common.Events;
 using VirtoCommerce.Storefront.Model.Common.Messages;
 using VirtoCommerce.Storefront.Model.StaticContent;
+using VirtoCommerce.Storefront.AutoRestClients.CustomerReviews.WebModuleApi;
 
 namespace VirtoCommerce.Storefront.DependencyInjection
 {
-
+    
     public static class PollyPolicyName
     {
         public const string HttpCircuitBreaker = nameof(HttpCircuitBreaker);
@@ -147,6 +148,8 @@ namespace VirtoCommerce.Storefront.DependencyInjection
             services.AddSingleton<IShippingModule>(sp => sp.GetRequiredService<ShippingModule>());
             services.AddAutoRestClient((credentials, httpClient, disposeHttpClient, baseUri) => new TaxModule(credentials, httpClient, disposeHttpClient) { BaseUri = baseUri });
             services.AddSingleton<ITaxModule>(sp => sp.GetRequiredService<TaxModule>());
+            services.AddAutoRestClient((credentials, httpClient, disposeHttpClient, baseUri) => new CustomerReviewsWebRESTAPIdocumentation(credentials, httpClient, disposeHttpClient) { BaseUri = baseUri });
+            services.AddSingleton<ICustomerReviews>(sp => new CustomerReviews(sp.GetRequiredService<CustomerReviewsWebRESTAPIdocumentation>()));
 
             if (setupAction != null)
             {

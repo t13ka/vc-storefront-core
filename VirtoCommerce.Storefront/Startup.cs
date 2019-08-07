@@ -57,6 +57,8 @@ using VirtoCommerce.Storefront.Model.Subscriptions.Services;
 using VirtoCommerce.Storefront.Model.Tax.Services;
 using VirtoCommerce.Storefront.Routing;
 using VirtoCommerce.Tools;
+using VirtoCommerce.Storefront.Model.CustomerReviews;
+using VirtoCommerce.Storefront.Domain.CustomerReview;
 
 namespace VirtoCommerce.Storefront
 {
@@ -85,7 +87,7 @@ namespace VirtoCommerce.Storefront
             services.AddSingleton<IWorkContextAccessor, WorkContextAccessor>();
             services.AddSingleton<IUrlBuilder, UrlBuilder>();
             services.AddSingleton<IStorefrontUrlBuilder, StorefrontUrlBuilder>();
-
+            services.AddSingleton<ICustomerReviewService, CustomerReviewService>();
             services.AddSingleton<IStoreService, StoreService>();
             services.AddSingleton<ICurrencyService, CurrencyService>();
             services.AddSingleton<ISlugRouteService, SlugRouteService>();
