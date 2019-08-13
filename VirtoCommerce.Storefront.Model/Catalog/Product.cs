@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using VirtoCommerce.Storefront.Model.Common;
 using VirtoCommerce.Storefront.Model.Marketing;
 using VirtoCommerce.Storefront.Model.Subscriptions;
+using VirtoCommerce.Storefront.Model.CustomerReviews;
 
 namespace VirtoCommerce.Storefront.Model.Catalog
 {
@@ -228,6 +229,8 @@ namespace VirtoCommerce.Storefront.Model.Catalog
         /// Product editorial reviews
         /// </summary>
         public IMutablePagedList<EditorialReview> Descriptions { get; set; }
+
+        public IMutablePagedList<CustomerReview> CustomerReviews { get; set; }
 
         /// <summary>
         /// Current product price
