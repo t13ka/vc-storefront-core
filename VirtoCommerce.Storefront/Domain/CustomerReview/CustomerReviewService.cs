@@ -1,5 +1,6 @@
 namespace VirtoCommerce.Storefront.Domain.CustomerReview
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace VirtoCommerce.Storefront.Domain.CustomerReview
     using VirtoCommerce.Storefront.Model.Caching;
     using VirtoCommerce.Storefront.Model.Common.Caching;
     using VirtoCommerce.Storefront.Model.CustomerReviews;
+    using Api = VirtoCommerce.Storefront.AutoRestClients.CustomerReviews.WebModuleApi.Models;
 
     public class CustomerReviewService : ICustomerReviewService
     {
@@ -29,6 +31,21 @@ namespace VirtoCommerce.Storefront.Domain.CustomerReview
             _customerReviewsApi = customerReviewsApi;
             _memoryCache = memoryCache;
             _apiChangesWatcher = apiChangesWatcher;
+        }
+
+        public async Task<CustomerReview> AddCustomerReview(CustomerReview customerReview)
+        {
+            var model = customerReview.ToApiModel();
+
+            await _customerReviewsApi.UpdateWithHttpMessagesAsync(new List<Api.CustomerReview> { model });
+
+            return customerReview;
+        }
+
+        public async Task<string> GetProductRating(string productId)
+        {
+            var result = await _customerReviewsApi.GetProductRatingWithHttpMessagesAsync(productId);
+            return result.Body;
         }
 
         public IPagedList<CustomerReview> SearchReviews(CustomerReviewSearchCriteria criteria)
@@ -49,7 +66,7 @@ namespace VirtoCommerce.Storefront.Domain.CustomerReview
                     var apiChangeToken = _apiChangesWatcher.CreateChangeToken();
                     cacheEntry.AddExpirationToken(apiChangeToken);
 
-                    var searchCriteriaDto = criteria.ToSearchCriteriaDto();
+                    var searchCriteriaDto = criteria.ToApiSearchCriteria();
                     var foundCustomerReviews = await _customerReviewsApi.SearchCustomerReviewsAsync(searchCriteriaDto);
                     var totalCount = foundCustomerReviews.TotalCount ?? 0;
 

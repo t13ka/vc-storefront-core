@@ -2,11 +2,11 @@ namespace VirtoCommerce.Storefront.Domain.CustomerReview
 {
     using VirtoCommerce.Storefront.Model.CustomerReviews;
 
-    using reviewDto = VirtoCommerce.Storefront.AutoRestClients.CustomerReviews.WebModuleApi.Models;
+    using Api = VirtoCommerce.Storefront.AutoRestClients.CustomerReviews.WebModuleApi.Models;
 
     public static class CustomerReviewConverter
     {
-        public static CustomerReview ToCustomerReview(this reviewDto.CustomerReview itemDto)
+        public static CustomerReview ToCustomerReview(this Api.CustomerReview itemDto)
         {
             var result = new CustomerReview
             {
@@ -25,10 +25,28 @@ namespace VirtoCommerce.Storefront.Domain.CustomerReview
             return result;
         }
 
-        public static reviewDto.CustomerReviewSearchCriteria ToSearchCriteriaDto(
-            this CustomerReviewSearchCriteria criteria)
+        public static Api.CustomerReview ToApiModel(this CustomerReview itemDto)
         {
-            var result = new reviewDto.CustomerReviewSearchCriteria
+            var result = new Api.CustomerReview
+            {
+                Id = itemDto.Id,
+                AuthorNickname = itemDto.AuthorNickname,
+                Content = itemDto.Content,
+                CreatedBy = itemDto.CreatedBy,
+                CreatedDate = itemDto.CreatedDate,
+                IsActive = itemDto.IsActive,
+                ModifiedBy = itemDto.ModifiedBy,
+                ModifiedDate = itemDto.ModifiedDate,
+                ProductId = itemDto.ProductId,
+                Rating = itemDto.Rating
+            };
+
+            return result;
+        }
+
+        public static Api.CustomerReviewSearchCriteria ToApiSearchCriteria(this CustomerReviewSearchCriteria criteria)
+        {
+            var result = new Api.CustomerReviewSearchCriteria
             {
                 IsActive = criteria.IsActive,
                 ProductIds = criteria.ProductIds,
